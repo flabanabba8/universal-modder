@@ -5,7 +5,12 @@ description: Generate game sprites, icons, concepts and textures using existing 
 
 # Game assets
 
-Use existing local Flux on the RTX 4090 or Gemini image generation through Vertex.
+For all image inspection and agent-native image generation, use **disposable-vision**
+(`um context inspect` / `um context generate`). Save screenshots to disk; send only
+the task, selected paths and acceptance criteria to a fresh worker. Return text and
+paths only; never inspect images in the coordinator or resume image workers.
+
+Use a compatible local Flux installation, native generation through a disposable worker, or authorized Gemini image generation through Vertex.
 Never use FAL or the OpenAI API. OpenAI images must go through an available agent image-generation tool using agent authentication. Use the disposable-vision skill (or `um context generate`) so image payloads stay out of the coordinator. Do not invent an OpenAI API fallback.
 Never download models without first proposing the model, purpose, size and license in normal chat and receiving explicit approval.
 
@@ -34,5 +39,5 @@ The CLI obtains a token from the user's locally configured Google ADC with gclou
 
 ## Output
 
-Review generated art, then use **asset-pipeline** to cut out, fit, pixelate or pack frames. Flux `--sprite` saves both the original and a local cutout; Vertex `--sprite` cuts out the flat background. Inspect alpha edges. Use reference-image editing for consistent variants. For 3D/audio/video, use suitable existing local tools or workflows; these image commands do not replace those capabilities.
+Review generated art with `um context inspect`, then use **asset-pipeline** to cut out, fit, pixelate or pack frames. Flux `--sprite` saves both the original and a local cutout; Vertex `--sprite` cuts out the flat background. Inspect alpha edges. Use reference-image editing for consistent variants. For 3D/audio/video, use suitable existing local tools or workflows; these image commands do not replace those capabilities.
 Keep generation manifests locally for provenance. Before publication audit manifests as well as source and artifacts for secrets and personal deployment settings. Credit the actual provider and models.

@@ -5,6 +5,11 @@ description: Launch, see and drive a real game so an agent can test its own mods
 
 # Game automation: the agent's hands and eyes
 
+For all image inspection and agent-native image generation, use **disposable-vision**
+(`um context inspect` / `um context generate`). Save screenshots to disk; send only
+the task, selected paths and acceptance criteria to a fresh worker. Return text and
+paths only; never inspect images in the coordinator or resume image workers.
+
 The real game is the oracle. The loop is launch → navigate → set up the scene → act → **screenshot and read
 logs** → decide. Build it once per game, then every change you make can be checked in a minute.
 

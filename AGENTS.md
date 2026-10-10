@@ -68,9 +68,23 @@ repo, they almost always want to **mod a game**, or to learn how a game was modd
 - Image inspection and reference generation use `.claude/skills/disposable-vision/` (or `um context inspect` / `um context generate`) and return text or file paths only. No parent transcript is passed. Workers execute directly without recursively delegating.
 - Prefer numeric profiles, scoped evidence and cached reports. Never publish worker caches, logs, game files, credentials, or screenshots without a separate publication audit. New work uses fresh sessions; existing context is not retroactively cleared.
 
-## Coordinator image isolation
+## Disposable agents for every vision task
+
+Use **disposable-vision** automatically for screenshots, sprites, diagrams,
+reference images, generated-art inspection, and agent-native image generation.
+Read `skills/disposable-vision/SKILL.md`; see `docs/disposable-vision.md` for recipes.
+Send a fresh worker only the specific task, selected image paths and acceptance
+criteria. Never pass the parent transcript or resume an image worker. Return only
+text findings, verdicts and file paths to the coordinator; keep image payloads,
+base64 and previews out of its context. Repair a failed worker path instead of
+falling back to coordinator vision.
+
+Use `um context inspect` for images saved by any source, including ComfyUI and
+Vertex. Use `um context generate` for native image generation; it launches an
+independent review afterward. A FAIL or UNCERTAIN draft is not accepted output.
+No verdict authorizes installation, overwriting assets or publication.
 
 Native image viewing/generation are disabled for coordinator sessions in
-.codex/config.toml. Use the bundled disposable-vision scripts or um context
-inspect/generate. Workers override those settings in isolated sessions. Never
-emit image/base64 payloads from shell or MCP to bypass the guard.
+.codex/config.toml. Workers override those settings in fresh isolated sessions
+and execute their narrowly assigned tasks directly, without further delegation.
+Never emit image/base64 payloads from shell or MCP to bypass the guard.

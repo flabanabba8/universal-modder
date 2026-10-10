@@ -454,7 +454,8 @@ def test_skill_copies_match():
     # .agents/skills and .claude/skills are real copies of skills/ (Windows clones turn symlinks into text files)
     root = Path(__file__).resolve().parents[1]
     def tree(d):
-        return {p.relative_to(d).as_posix(): p.read_bytes() for p in sorted(d.rglob("*")) if p.is_file()}
+        return {p.relative_to(d).as_posix(): p.read_bytes() for p in sorted(d.rglob("*"))
+                if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"}
     src = tree(root / "skills")
     for copy in (".agents/skills", ".claude/skills"):
         assert not (root / copy).is_symlink(), f"{copy} must be a folder, not a symlink"
