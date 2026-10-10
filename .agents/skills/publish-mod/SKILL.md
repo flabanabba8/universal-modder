@@ -11,7 +11,7 @@ um publish check ./MyMod --game "<game install folder>"
 ```
 - **FAIL:** files byte-identical to game files, leaked keys (fal/Anthropic/OpenAI/GitHub/AWS), `.env` files.
 - **WARN:** decompiler fingerprints in source (`FUN_`/`DAT_`/`sub_` names, "Decompiled with" headers), large
-  engine archives, absolute user paths, a missing README, fal assets without credit.
+  engine archives, absolute user paths, a missing README, generated assets without credit.
 
 Fix every FAIL. Resolve each WARN deliberately. For example, AoE2 data mods do ship a modified `.dat`, which
 is the platform's norm.
@@ -36,7 +36,7 @@ is the platform's norm.
 - Credits:
   - the loader and libraries;
   - references you learned from;
-  - **"Art/audio generated with fal (fal.ai) using <models>"** (`fal_manifest.jsonl` lists them);
+  - **"Art/audio generated using <provider and models>"** (generation manifests list them);
   - honest AI disclosure (which agent and model built it).
 - License for your code (MIT/Apache is common). Your assets' terms follow the models' licenses.
 
@@ -46,6 +46,11 @@ updates, re-run the in-game test scene before bumping.
 
 ## 5. The post
 - Lead with the video: the showcase-video skill; 20-45 s, gameplay within 2-3 s.
-- Post text: the hook, what it is, the "how" credit (which agent + fal built it), a link.
+- Post text: the hook, what it is, the "how" credit (which agent and models built it), a link.
 - If the video uses anyone else's footage, credit them by handle and ask first.
 - Publishing is always the user's call. Draft it, show them, and let them press the button.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.
+
+Before any public push, repository visibility change, release or artifact publication, run a secret scanner AND inspect personal deployment configuration across all exposed source, docs, scripts, defaults, history, branches, tags, generated files, logs, screenshots and package contents. Do not print sensitive values. Keep credentials and private deployment identifiers out of public content; ignore rules are not evidence that history or artifacts are clean. Do not publish until the audit is complete.

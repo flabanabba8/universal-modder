@@ -15,10 +15,10 @@ repo, they almost always want to **mod a game**, or to learn how a game was modd
 ## Tools
 - **`bin/um`** is the Python CLI, and it sets itself up with `uv`.
   - Put it on PATH: `export PATH="$PWD/bin:$PATH"`, or install it anywhere with
-    `uv tool install git+https://github.com/rehan-remade/universal-modder`.
+    `uv tool install git+https://github.com/flabanabba8/universal-modder`.
   - Every group has `--help`:
     - `scan`: installed games, engine, anti-cheat, loaders, saves, routes
-    - `fal`: sprites, textures, PBR, 3D, rigs, SFX, music, voice, video via fal's REST API
+    - `image vertex`: direct Vertex image generation and reference-image edits
     - `comfy`: images from a local ComfyUI server, with no API key
     - `sprite` / `render3d`: art → engine-ready frames
     - `win`: launch, screenshot, input, record on Windows (also from WSL)
@@ -26,11 +26,7 @@ repo, they almost always want to **mod a game**, or to learn how a game was modd
     - `backup`: snapshot and restore saves
     - `publish`: pre-release lint
     - `kb`: the knowledge base
-- **fal MCP server:** `https://mcp.fal.ai/mcp` with header `Authorization: Bearer $FAL_KEY`.
-  - It's pre-configured per agent: `.mcp.json` (Claude Code), `.codex/config.toml` (Codex),
-    `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code / Copilot), `gemini-extension.json`
-    (Gemini CLI), `opencode.json` (OpenCode).
-  - No MCP? `um fal` does the same over REST.
+- **Assets:** use `um comfy flux` for installed local Flux or `um image vertex` for Vertex with the user’s locally configured Google ADC. See the game-assets skill. No FAL or OpenAI API. Propose any model download in normal chat and wait for user approval.
 - **Skills** (`skills/*/SKILL.md`, Agent Skills format) are copied where agents look for them in a clone:
   `.agents/skills` (Codex, Gemini CLI, Copilot, Cursor, OpenCode) and `.claude/skills` (Claude Code). Edit
   `skills/`, then copy it over; a test fails while the copies differ.
@@ -62,3 +58,19 @@ repo, they almost always want to **mod a game**, or to learn how a game was modd
   `um publish check .`.
 - **Wording:** keep skills and docs agent-neutral ("the agent", not a product name) except in sections
   about one specific agent.
+
+## Bounded analysis and output capture
+
+- For substantial logs, code exploration, document/data review, web research, saved browser/game evidence, and independent code review, load `.claude/skills/disposable-tasks/SKILL.md`. Use small local commands directly when delegation would add overhead.
+- Capture verbose tests/builds/audits with `um context capture --output outputs/context-workers/test.log --compress -- COMMAND ...`; keep its exit status and log path. Analyze saved logs with `um context analyze --kind logs --question "What failed?" LOG`. Never paste complete logs or broad search results into the main conversation.
+- `um context analyze --kind code --root . --pattern REGEX --question QUESTION` returns a bounded source map. Use `--kind review --base HEAD` for tracked working changes. State omitted files and untracked-file limitations.
+- Browser/game automation remains with the authorized automation tools. Save traces and screenshots, then use `--kind browser` or `--kind game` with optional `--image`; the worker does not launch games, drive the desktop, or claim unexecuted checks passed.
+- Image inspection and reference generation use `.claude/skills/disposable-vision/` (or `um context inspect` / `um context generate`) and return text or file paths only. No parent transcript is passed. Workers execute directly without recursively delegating.
+- Prefer numeric profiles, scoped evidence and cached reports. Never publish worker caches, logs, game files, credentials, or screenshots without a separate publication audit. New work uses fresh sessions; existing context is not retroactively cleared.
+
+## Coordinator image isolation
+
+Native image viewing/generation are disabled for coordinator sessions in
+.codex/config.toml. Use the bundled disposable-vision scripts or um context
+inspect/generate. Workers override those settings in isolated sessions. Never
+emit image/base64 payloads from shell or MCP to bypass the guard.

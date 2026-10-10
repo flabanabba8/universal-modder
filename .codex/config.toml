@@ -1,4 +1,4 @@
-# Codex: project-scoped MCP (trusted projects). fal's hosted MCP server, key from $FAL_KEY.
-[mcp_servers.fal]
-url = "https://mcp.fal.ai/mcp"
-bearer_token_env_var = "FAL_KEY"
+# Image payloads belong in fresh disposable workers, not the coordinator.
+[features]
+view_image = false
+image_generation = false

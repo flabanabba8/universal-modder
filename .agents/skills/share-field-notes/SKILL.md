@@ -76,3 +76,6 @@ um kb pr knowledge/games/<game>/<note>.md --yes    # branch, commit, push (fork 
 ## When your notes disagree with an existing one
 Don't delete theirs. Add a dated line to the relevant Gotcha ("2026-10-02, build 1.2.3: this changed to...")
 and bump `date`. The PR discussion is where it gets settled.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

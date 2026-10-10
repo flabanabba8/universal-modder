@@ -250,6 +250,25 @@ def main(a):
         wf = apply_set(load_workflow(a.workflow), a.set)
         generate(base, wf, a.out, a.name or Path(a.workflow).stem, a.timeout, dict(source=str(a.workflow), set=a.set or []))
         return
+    if a.cmd == "flux":
+        wf = load_workflow(Path(__file__).parent / "workflows" / "flux2-klein.json")
+        prompt = a.prompt
+        if a.sprite:
+            prompt += ". Single game sprite, centered, no text, no shadow, on a plain flat white background."
+        w, h = parse_size(a.size)
+        wf["4"]["inputs"]["text"] = prompt
+        wf["7"]["inputs"]["noise_seed"] = a.seed if a.seed is not None else random.randrange(2**32)
+        for node in ("6", "10"):
+            wf[node]["inputs"].update(width=w, height=h)
+        wf["10"]["inputs"]["steps"] = a.steps
+        files = generate(base, wf, a.out, _name(a, a.prompt), a.timeout, dict(prompt=prompt, model="flux2-klein"))
+        if a.sprite:
+            from um import sprite
+            for f in files:
+                cut = Path(f).with_name(Path(f).stem + "_cut.png")
+                sprite.cutout(sprite.load(f)).save(cut)
+                print(cut)
+        return
     if a.cmd == "image":
         ckpt = a.checkpoint
         if not ckpt:
@@ -292,6 +311,12 @@ def register(sub):
 
     q = cmd("status", "is ComfyUI running, and which checkpoints can it load", out=False)
     q.add_argument("--json", action="store_true")
+    q = cmd("flux", "text -> image with the installed Flux 2 Klein workflow")
+    q.add_argument("prompt")
+    q.add_argument("--size", default="1024x1024")
+    q.add_argument("--steps", type=int, default=20)
+    q.add_argument("--seed", type=int)
+    q.add_argument("--sprite", action="store_true")
     q = cmd("image", "text -> image with ComfyUI's default graph (SD 1.5 / SDXL checkpoints)")
     q.add_argument("prompt")
     q.add_argument("--checkpoint", help="checkpoint file name (default: the first one the server lists)")

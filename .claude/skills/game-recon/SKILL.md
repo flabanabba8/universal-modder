@@ -64,3 +64,6 @@ Capture: the loader's name, repo, **current version and install steps**, the gam
 - Unknowns to resolve first: <list>
 ```
 Then continue with the mod-any-game loop (lab setup → source of truth → vertical slice).
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

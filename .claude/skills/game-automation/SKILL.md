@@ -96,3 +96,6 @@ the game window's **client area**.
 - **macOS:** `screencapture -l <windowid> shot.png` (window id via `GetWindowID` or AppleScript),
   `osascript` / `cliclick` for input. Input and screen recording need Accessibility and Screen Recording
   permission for the terminal.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

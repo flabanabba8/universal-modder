@@ -1,6 +1,6 @@
 ---
 name: mod-any-game
-description: Mod a PC game the user owns, taking an idea to working in the real game and recorded. It covers new items, weapons, enemies, bosses, units, civilizations, mechanics, art, sound, VR and cross-game mashups. Use when the user wants to mod, extend, hack on, reverse engineer or mash up a game ("add a nuke to Terraria", "make a new civ for Age of Empires", "put Minecraft inside X", "can I mod this game?"). It covers recon (engine, loaders, anti-cheat), choosing the route, a safe lab, a first vertical slice, fal-generated assets, in-game verification and a showcase clip.
+description: Mod a PC game the user owns, taking an idea to working in the real game and recorded. It covers new items, weapons, enemies, bosses, units, civilizations, mechanics, art, sound, VR and cross-game mashups. Use when the user wants to mod, extend, hack on, reverse engineer or mash up a game ("add a nuke to Terraria", "make a new civ for Age of Empires", "put Minecraft inside X", "can I mod this game?"). It covers recon (engine, loaders, anti-cheat), choosing the route, a safe lab, a first vertical slice, AI-generated assets, in-game verification and a showcase clip.
 ---
 
 # Mod any game
@@ -26,14 +26,14 @@ Otherwise install it once for any agent: `uv tool install git+https://github.com
 | Need | Command |
 |---|---|
 | What games are installed, what engine, what anti-cheat, where saves live | `um scan --list`, `um scan "<game>"` |
-| Sprites, textures, PBR, 3D models, rigs, SFX, music, voice, video (fal) | `um fal <recipe>`, or the fal MCP (`search_models`, `run_model`) |
+| Images and sprites with existing local Flux / Vertex | `um comfy flux`, `um image vertex`; see **game-assets** |
 | Cut out / fit / pixelate / pack sprites; 3D model → sprite frames | `um sprite ...`, `um render3d ...` |
 | Launch, screenshot, click/type, record a Windows game (also from WSL) | `um win ...` |
 | Snapshot saves before touching them; undo | `um backup create/diff/restore` |
 | Cut a showcase video | `um video contact/compile/mux` |
 | Lint a mod before sharing (game files, decompiled code, secrets) | `um publish check` |
 
-Companion skills: **game-recon**, **reverse-engineering**, **fal-assets**, **asset-pipeline**,
+Companion skills: **game-recon**, **reverse-engineering**, **game-assets**, **asset-pipeline**,
 **game-automation**, **showcase-video**, **mashup-mods**, **publish-mod**, **share-field-notes**.
 
 ## The loop
@@ -100,12 +100,12 @@ Take one item, unit or weapon all the way through with placeholder art. Define i
 appears and works, from the log plus a screenshot you actually look at. Only then widen. Commit each working
 step in the mod's own git repo.
 
-### 6. Assets (fal-assets and asset-pipeline skills)
+### 6. Assets (game-assets and asset-pipeline skills)
 Study the game's own assets first: size, palette, outline, camera angle, facing, frame layout. Then generate
-with `um fal`. Every call is recorded in `fal_manifest.jsonl`. Convert with `um sprite` / `um render3d` into
+with existing local Flux or Vertex (see **game-assets**). Calls record generation manifests. Convert with `um sprite` / `um render3d` into
 exactly what the engine loads.
 - **Consistency across many angles and frames:** generate one concept, turn it into 3D
-  (`um fal model3d`), then render every heading from the game's camera (`um render3d --preset aoe2`).
+  (an existing local image-to-3D workflow or Blender), then render every heading from the game's camera (`um render3d --preset aoe2`).
 - **Pixel-art games:** generate on a flat background or with transparency, cut out, then do one
   nearest-neighbour fit to the frame size.
 
@@ -135,7 +135,7 @@ Choose moments from a contact sheet, then cut 20-45 s with one-line titles and a
 
 ### 9. Package and publish (the publish-mod skill)
 Run `um publish check <mod> --game "<install>"`. Write a README with install steps. Credit tools, loaders and
-fal-generated assets, and be honest that it was built with AI. Ship no game files.
+AI-generated assets, and be honest that it was built with AI. Ship no game files.
 
 ### 10. Leave a field note (the share-field-notes skill)
 Turn `MODLOG.md` into a knowledge-base note (`um kb new ...`, then `um kb check`). Cover:
@@ -182,3 +182,6 @@ documented dead end saves the next agent hours.
 - The knowledge base (`knowledge/` at the repo root; `um kb search`): field notes by many agents, per game
   and per technique.
 - `references/safety.md`: the rules with their reasons, anti-cheat and legal hygiene.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

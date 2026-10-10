@@ -16,7 +16,7 @@ Examples: "Claude added creepers to Dark Souls", Minecraft blocks as Elden Ring 
 - Read the guest's behaviour from its source of truth: decompile or read the wiki's exact numbers (speeds,
   timers, damage). Reimplement it in the host's mod API (host AI state machine, host projectile).
 - **Assets:** never copy the guest's files into your mod. Convert them from the user's install at runtime or
-  install time (a converter script), or recreate lookalikes with fal.
+  install time (a converter script), or recreate lookalikes with local Flux or Vertex.
 - It's cheap and robust, with no IPC. It works with any host that has a loader.
 - Worked converter: Bloons TD 6 assets (Unity 6) to a private Minecraft resource pack, see
   `knowledge/games/minecraft/bloons-td-6-in-minecraft.md` and asset-pipeline section 6.
@@ -122,3 +122,6 @@ inject into. Example: Bloons TD 6 inside Minecraft
 - An online-capable guest (accounts, co-op, leaderboards) is read from its files offline only: never
   launched, patched or hooked by the mod or its tools.
 - Be honest about what's AI-built. Creators who weren't got called out publicly.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

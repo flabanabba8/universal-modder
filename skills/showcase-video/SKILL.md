@@ -66,7 +66,7 @@ EDL.
   radial...) or `cut`.
 - **Fills:** for non-16:9 clips, `fill: blur` (blurred backdrop), `crop` or `pad`.
 - **Per clip:** `speed` and `volume`, `zoom` to punch in past UI, `crop` [x, y, w, h] to reframe.
-- **Music:** `um fal music "..." --seconds 60` makes a bed. Set `bpm` and use `beats` instead of `dur` to
+- **Music:** Use existing local ACE-Step for a music bed. Set `bpm` and use `beats` instead of `dur` to
   cut on the beat; `um video beats music.mp3` estimates tempo and first beat.
 
 ## Style that works (from real feedback)
@@ -79,3 +79,6 @@ EDL.
   post, and ask permission when it's promotional. Don't imply their clips were made with your tool. Download
   only public posts, and only what you'll use.
 - **Last step:** look at a contact sheet of the finished video before sharing it.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.

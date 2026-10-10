@@ -13,3 +13,22 @@ dist/
 .pytest_cache/
 # the parent repo ignores bin/ (build output); the CLI launcher lives here
 !bin/
+
+outputs/context-workers/
+
+# Private provider/deployment settings and generated worker material
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+application_default_credentials.json
+credentials*.json
+*token*.txt
+config.local.*
+.codex/vision-state/
+image_manifest.jsonl
+comfy_manifest.jsonl
+assets/gen/

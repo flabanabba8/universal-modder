@@ -1,6 +1,8 @@
 @AGENTS.md
 
 ## Claude Code specifics
-- Installed as a plugin, the skills are namespaced (`/universal-modder:mod-any-game`), the fal MCP server comes
-  from `.mcp.json` (needs `FAL_KEY` in the environment), and a SessionStart hook puts `um` on PATH.
-- In a clone, `.claude/settings.json` adds the same PATH hook, and `.claude/skills` is a copy of `skills/`.
+- Skills installed as a plugin are namespaced under universal-modder.
+- FAL MCP is disabled in this fork; .mcp.json has no provider credentials.
+- A SessionStart hook puts um on PATH. In a clone, .claude/settings.json adds
+  the same PATH hook, and .claude/skills mirrors skills/.
+- Image work uses the disposable-vision skill and its authenticated Codex worker.

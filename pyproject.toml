@@ -1,7 +1,7 @@
 [project]
 name = "universal-modder"
 version = "0.2.0"
-description = "Tools and a shared knowledge base for AI agents that mod games: engine scanner, fal asset generation, sprite and 3D-to-sprite pipelines, window capture and input on Windows, showcase video editing, field notes."
+description = "Tools and a shared knowledge base for AI agents that mod games: engine scanner, local and Vertex asset generation, sprite and 3D-to-sprite pipelines, window capture and input on Windows, showcase video editing, field notes."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -20,3 +20,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["um"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/disposable-tasks" = "um/bundled_skills/disposable-tasks"
+"skills/disposable-vision" = "um/bundled_skills/disposable-vision"

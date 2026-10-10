@@ -104,3 +104,6 @@ For an **undocumented format**:
   - small verified steps;
   - cap attempts per problem (about 3 identical failures, then change approach);
   - commit every confirmed fact.
+
+## Installed asset-provider preferences
+Use existing local Flux via `um comfy flux`, or Vertex via `um image vertex`. For OpenAI images, use an agent image-generation tool with its agent authentication; never use the OpenAI API. Do not use FAL. Never download models without proposing them in normal chat and receiving user approval first. Read **game-assets** for the installed routes.
