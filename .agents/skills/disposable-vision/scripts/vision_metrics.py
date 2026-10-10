@@ -51,7 +51,7 @@ def measured_job(kind, **values):
     start = time.monotonic()
     status = 'failed'
     try:
-        yield
+        yield values
         status = 'ok'
     finally:
         after = network_bytes()

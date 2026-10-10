@@ -2,7 +2,7 @@
 
 A fork of [rehan-remade/universal-modder](https://github.com/rehan-remade/universal-modder),
 with local image/video workflows, direct Vertex image generation, and disposable
-analysis and vision workers. Original MIT license and contributor attribution retained.
+command-log capture and isolated vision workflows. Original MIT license and contributor attribution retained.
 
 ## Added features
 
@@ -13,8 +13,8 @@ analysis and vision workers. Original MIT license and contributor attribution re
   aspect ratio, and sprite cutout. Uses your locally configured Google ADC.
 - **Disposable vision:** `um context inspect` and `generate` keep image payloads
   out of the parent conversation; generation receives a separate visual review.
-- **Bounded analysis:** `um context capture` and `analyze` keep long logs on disk
-  and return focused findings. Includes code, document, data, browser/game and web modes.
+- **Local log capture:** `um context capture` saves long command output on disk and
+  preserves exit status. Text analysis uses local tools; disposable text workers are disabled.
 - **CC0 materials:** `tools/cc0_materials.py` searches/downloads from ambientCG and
   Poly Haven. See [asset sources](docs/asset-sources.md) for commands and attribution.
 - FAL CLI registration, its skill and MCP configuration are disabled in this fork.
@@ -41,7 +41,6 @@ um comfy flux "a blue potion bottle, game icon" --sprite --name potion
 um image vertex "a mossy wall" --out assets/gen/wall.png
 um image vertex "same wall in winter" --ref assets/gen/wall.png --out assets/gen/winter.png
 um context capture --output outputs/tests.log --compress -- pytest -q tests
-um context analyze --kind logs --question "What failed?" outputs/tests.log.gz
 um context inspect --question "Are the edges clean?" --criteria "No halos" sprite.png
 um context generate assets/new-potion.png --prompt "A blue potion icon" --criteria "One bottle, no text"
 ```
@@ -70,8 +69,10 @@ um context generate assets/gen/new-sprite.png --prompt "A blue potion icon" --cr
 ```
 
 See [the vision task guide](docs/disposable-vision.md) for limits, review verdicts,
-close-up inspection and failure handling. These workers use your existing Codex
-login; no API key or additional agent framework is required.
+provider selection and failure handling. Native workers use your existing Codex login. For an already-running local vision
+server, add `--backend local`; requests contain only the current task and images,
+with no agent session, tools or conversation history. Honor any requested provider;
+there is no automatic fallback. No API key or additional agent framework is required.
 
 ## Development
 

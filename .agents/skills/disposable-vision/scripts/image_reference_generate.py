@@ -16,7 +16,7 @@ import subprocess
 import tempfile
 
 from PIL import Image
-from vision_inspect import codex_command, inspect_images
+from vision_inspect import codex_command, inspect_images, codex_usage
 from vision_metrics import measured_job
 
 
@@ -62,11 +62,12 @@ def generate(output, prompt, references=(), *, model=None, timeout=300, criteria
                    'Do not inspect other directories. End with a short text status, no embedded images.\n'
                    f'Reference files: {names}\nTask: {prompt}\nAcceptance criteria: {criteria or prompt}')
         env = {k: v for k, v in os.environ.items() if not k.startswith('ORCA_')}
-        with measured_job('generation', image_count=len(refs),
-                          attachment_bytes=sum(p.stat().st_size for p in refs)):
-            subprocess.run(command + attachments + ['--', request], env=env,
-                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                           stderr=subprocess.PIPE, check=True, timeout=timeout)
+        with measured_job('generation', backend='codex', image_count=len(refs),
+                          attachment_bytes=sum(p.stat().st_size for p in refs)) as metrics:
+            result = subprocess.run(command + attachments + ['--', request], env=env,
+                           stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE, text=True, check=True, timeout=timeout)
+            metrics.update(codex_usage(result.stdout))
         with Image.open(artifact) as image:
             if image.format != 'PNG':
                 raise ValueError('Worker did not produce a PNG')
@@ -80,18 +81,26 @@ def generate(output, prompt, references=(), *, model=None, timeout=300, criteria
     batches = [refs[i:i + 3] for i in range(0, len(refs), 3)] or [[]]
     try:
         for batch in batches:
+            facts = []
+            for index, source in enumerate([output, *batch], 1):
+                with Image.open(source) as im:
+                    alpha = im.convert('RGBA').getchannel('A').histogram()
+                    facts.append(f'Image {index}: original {im.width}x{im.height}; '
+                                 f'{alpha[0]} fully transparent pixels of {im.width * im.height}.')
             review['reports'].append(inspect_images(
                 [output, *batch],
                 'Image 1 is the generated candidate; remaining images are references. '
                 'Assess image 1 against all acceptance criteria and any supplied references. '
                 'Start with exactly VERDICT: PASS, VERDICT: FAIL, or VERDICT: UNCERTAIN. '
                 'PASS only if every criterion is visibly met. State evidence for each criterion. '
-                'Use UNCERTAIN for details the preview cannot establish.',
-                model=model, criteria=criteria or prompt, refresh=True))
+                'Use UNCERTAIN for details the preview cannot establish. '
+                'Measured source facts (use these for transparency, not the JPEG matte): ' + ' '.join(facts),
+                model=model, backend='codex',
+                criteria=criteria or prompt, refresh=True))
         verdicts = [re.match(r'^VERDICT: (PASS|FAIL|UNCERTAIN)\b', report) for report in review['reports']]
         values = [v[1] if v else 'UNCERTAIN' for v in verdicts]
         review['verdict'] = 'FAIL' if 'FAIL' in values else ('PASS' if all(v == 'PASS' for v in values) else 'UNCERTAIN')
-    except (OSError, ValueError, subprocess.SubprocessError):
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
         review['error'] = 'Independent review failed; keep the saved image as an unaccepted draft.'
     with review_path.open('x') as stream:
         json.dump(review, stream, indent=2)

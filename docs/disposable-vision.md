@@ -2,8 +2,10 @@
 
 The bundled workers isolate image-heavy work from the coordinator's context.
 Use them for every screenshot, sprite, diagram, reference-image and generated-art
-review, regardless of which provider created the image. They launch fresh,
-ephemeral Codex sessions using the existing local login. No parent conversation
+review, regardless of which provider created the image. Native tasks launch fresh,
+ephemeral Codex sessions using the existing local login. Explicit `--backend local`
+inspection uses stateless requests to an already-running loopback vision server.
+Honor requested providers; no backend silently falls back to another. No parent conversation
 is supplied, and workers are never resumed.
 
 ## Check readiness
@@ -27,8 +29,8 @@ Each job accepts one to four image paths and creates whole-image JPEG previews
 of at most 50 KB each. Output is a bounded text report: visible findings,
 uncertainty and recommended action. Give a specific task and acceptance criteria,
 not conversation history. Cache hits reuse an identical review; `--refresh`
-requests a fresh opinion. For fine details or alpha edges, prepare a close crop or
-checkerboard preview on disk, then pass it to another fresh inspection worker.
+requests a fresh opinion. Preserve the whole frame; do not crop for vision. Check alpha and exact pixel
+properties with local tools. A whole-frame checkerboard preview can help review edges.
 Compressed previews do not prove exact alpha values or pixel-perfect quality.
 
 Save game/UI screenshots with the authorized automation tool. Send their paths

@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,6 +19,9 @@ REAL_RUN = subprocess.run
 
 class ImageWorkersTest(unittest.TestCase):
     def setUp(self):
+        self.backend_patch = patch.dict(os.environ, {'VISION_BACKEND': 'codex'})
+        self.backend_patch.start()
+        self.addCleanup(self.backend_patch.stop)
         self.state = tempfile.TemporaryDirectory()
         self.addCleanup(self.state.cleanup)
         self.state_patch = patch('vision_inspect.STATE', Path(self.state.name))
@@ -40,7 +44,7 @@ class ImageWorkersTest(unittest.TestCase):
                     self.assertIn(flag, command)
                 self.assertEqual(command[command.index('--sandbox') + 1], 'read-only')
                 self.assertEqual(command[-2], '--')
-                self.assertEqual(kwargs['stdout'], subprocess.DEVNULL)
+                self.assertEqual(kwargs['stdout'], subprocess.PIPE)  # JSON usage is captured privately, never returned
                 self.assertFalse(any(k.startswith('ORCA_') for k in kwargs['env']))
                 work = Path(command[command.index('--cd') + 1]); workdirs.append(work)
                 previews = list(work.glob('image-*.jpg'))
@@ -66,7 +70,7 @@ class ImageWorkersTest(unittest.TestCase):
             def fake_run(command, **kwargs):
                 self.assertIn('--ephemeral', command)
                 self.assertEqual(command[command.index('--sandbox') + 1], 'workspace-write')
-                self.assertEqual(kwargs['stdout'], subprocess.DEVNULL)
+                self.assertEqual(kwargs['stdout'], subprocess.PIPE)  # JSON usage is captured privately, never returned
                 work = Path(command[command.index('--cd') + 1]); workdirs.append(work)
                 self.assertEqual((work / 'reference-1.png').read_bytes(), original)
                 Image.new('RGBA', (32, 32), (255, 0, 0, 255)).save(work / 'generated.png')
@@ -77,6 +81,8 @@ class ImageWorkersTest(unittest.TestCase):
             self.assertEqual(result['image'], str(output))
             self.assertEqual(result['verdict'], 'PASS')
             self.assertTrue(reviewer.call_args.kwargs['refresh'])
+            self.assertEqual(reviewer.call_args.kwargs['backend'], 'codex')
+            self.assertEqual(reviewer.call_args.kwargs['model'], 'test-model')
             self.assertEqual(json.loads(Path(result['review']).read_text())['verdict'], 'PASS')
             self.assertTrue(output.exists())
             self.assertFalse(workdirs[0].exists())
