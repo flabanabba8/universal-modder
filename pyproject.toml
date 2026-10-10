@@ -22,5 +22,4 @@ build-backend = "hatchling.build"
 packages = ["um"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"skills/disposable-tasks" = "um/bundled_skills/disposable-tasks"
 "skills/disposable-vision" = "um/bundled_skills/disposable-vision"

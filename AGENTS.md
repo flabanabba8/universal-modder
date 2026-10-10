@@ -59,21 +59,26 @@ repo, they almost always want to **mod a game**, or to learn how a game was modd
 - **Wording:** keep skills and docs agent-neutral ("the agent", not a product name) except in sections
   about one specific agent.
 
-## Bounded analysis and output capture
+## Local analysis and image-only disposable sessions
 
-- For substantial logs, code exploration, document/data review, web research, saved browser/game evidence, and independent code review, load `.claude/skills/disposable-tasks/SKILL.md`. Use small local commands directly when delegation would add overhead.
-- Capture verbose tests/builds/audits with `um context capture --output outputs/context-workers/test.log --compress -- COMMAND ...`; keep its exit status and log path. Analyze saved logs with `um context analyze --kind logs --question "What failed?" LOG`. Never paste complete logs or broad search results into the main conversation.
-- `um context analyze --kind code --root . --pattern REGEX --question QUESTION` returns a bounded source map. Use `--kind review --base HEAD` for tracked working changes. State omitted files and untracked-file limitations.
-- Browser/game automation remains with the authorized automation tools. Save traces and screenshots, then use `--kind browser` or `--kind game` with optional `--image`; the worker does not launch games, drive the desktop, or claim unexecuted checks passed.
-- Image inspection and reference generation use `.claude/skills/disposable-vision/` (or `um context inspect` / `um context generate`) and return text or file paths only. No parent transcript is passed. Workers execute directly without recursively delegating.
-- Prefer numeric profiles, scoped evidence and cached reports. Never publish worker caches, logs, game files, credentials, or screenshots without a separate publication audit. New work uses fresh sessions; existing context is not retroactively cleared.
+The bundled inspection default honors this project’s requested OpenAI provider.
+Explicit `--backend local` uses stateless local vision with no agent session.
+Only native generation or explicitly chosen image-review escalation may create
+fresh disposable agent sessions. For code, logs, documents, data, research and reviews, use ordinary
+local tools and bounded source reads; do not start a text worker or subagent.
+`um context capture` runs a local command and saves its output, preserving exit
+status; it makes no model request. `um context analyze` is disabled.
+Image tasks use disposable-vision (`um context inspect` / `generate`), with a
+specific task, selected paths and criteria. Return text/verdicts/paths only.
+No parent transcript, resumed worker, recursive delegation or image fallback.
+
 
 ## Disposable agents for every vision task
 
 Use **disposable-vision** automatically for screenshots, sprites, diagrams,
-reference images, generated-art inspection, and agent-native image generation.
-Read `skills/disposable-vision/SKILL.md`; see `docs/disposable-vision.md` for recipes.
-Send a fresh worker only the specific task, selected image paths and acceptance
+reference images, generated-art inspection, and agent-native image generation. Explicit local inspection is stateless; native
+generation uses a fresh agent session. Read `skills/disposable-vision/SKILL.md`; see `docs/disposable-vision.md` for recipes.
+Send an isolated image request only the specific task, selected paths and acceptance
 criteria. Never pass the parent transcript or resume an image worker. Return only
 text findings, verdicts and file paths to the coordinator; keep image payloads,
 base64 and previews out of its context. Repair a failed worker path instead of

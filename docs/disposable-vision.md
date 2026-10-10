@@ -1,73 +1,50 @@
-# Disposable agents for vision tasks
+# Isolated image operations
 
-The bundled workers isolate image-heavy work from the coordinator's context.
-Use them for every screenshot, sprite, diagram, reference-image and generated-art
-review, regardless of which provider created the image. They launch fresh,
-ephemeral Codex sessions using the existing local login. No parent conversation
-is supplied, and workers are never resumed.
+Only image operations may use disposable AI work. Code, logs, data, documents,
+research and reviews use ordinary local tools. `um context capture` saves local
+command output and exit status; `um context analyze` is disabled.
 
-## Check readiness
+## Inspect
 
 ```bash
-um context check
+um context inspect --backend local --question "Are the features visible and attached?" --criteria "No missing parts; state limitations" render.png
 ```
 
-Requires Python 3.11+, Pillow and an authenticated, compatible Codex CLI. The check
-reports readiness without uploading images or making a model request. Credentials
-stay local. Fix a failed prerequisite rather than switching to coordinator vision.
+The explicit local backend is a stateless request to a warm local vision endpoint: two messages,
+no tools/skills/history and a bounded output. Supply one to four whole images,
+not a parent transcript. Exact alpha, dimensions, masks, hashes and pixel equality
+are measured locally; JPEG previews cannot prove them. Validate representative
+evidence before scaling a task. Re-review only when relevant inputs change.
 
-## Inspect existing images
+The private endpoint/model configuration lives outside the repo in
+~/.config/disposable-vision/local.json. A 9router key, when needed, is read from
+its separate private file and sent only to the configured loopback endpoint.
+Unavailable service, truncation or invalid verdict fails closed; no remote
+fallback. Report-cache hits skip inference. The bundled project default is Codex to honor
+its requested OpenAI provider; choose `--backend local` for permitted local tasks.
+Codex has agent startup overhead and is never an automatic local failure fallback.
+
+## Generate
 
 ```bash
-um context inspect --question "Are the sprite edges clean?" --criteria "No halos, clipped parts or stray marks" sprite.png
-um context inspect --question "Does the render preserve the reference design?" --criteria "Matching proportions and color" render.png reference.png
+um context generate assets/gen/new-art.png --prompt "Specific image task" --criteria "Visible requirements" --reference reference.png
 ```
 
-Each job accepts one to four image paths and creates whole-image JPEG previews
-of at most 50 KB each. Output is a bounded text report: visible findings,
-uncertainty and recommended action. Give a specific task and acceptance criteria,
-not conversation history. Cache hits reuse an identical review; `--refresh`
-requests a fresh opinion. For fine details or alpha edges, prepare a close crop or
-checkerboard preview on disk, then pass it to another fresh inspection worker.
-Compressed previews do not prove exact alpha values or pixel-perfect quality.
+Native generation launches a fresh isolated Codex session using the existing
+login, then independent isolated OpenAI image review. PASS requires all stated criteria; FAIL and
+UNCERTAIN remain drafts. No verdict authorizes overwriting, installing or
+publishing assets. Start with one representative transformation, not a large
+family of unvalidated drafts.
 
-Save game/UI screenshots with the authorized automation tool. Send their paths
-to an inspection worker and use its text findings for the next action. The worker
-does not drive the desktop. Images produced by `um comfy` and `um image vertex`
-use this same inspection path; those providers do not require coordinator vision.
+Keep image payloads/base64/previews out of the coordinator. Return only text,
+verdicts and paths. Temporary data is removed; local cache and numeric metrics
+remain private. Ephemeral agents do not guarantee zero server retention.
 
-## Generate and independently review
+## Measure
 
-```bash
-um context generate assets/gen/new-potion.png --prompt "A blue potion icon, side view" --criteria "One bottle, centered, no text"
-um context generate assets/gen/red-potion.png --prompt "Match this potion design, with red liquid" --criteria "Same silhouette, red liquid, no text" --reference assets/gen/new-potion.png
-```
-
-The generator invokes the native image tool within its disposable session. A
-separate fresh inspector reviews the result against the task and references.
-The command returns JSON containing image/review paths and a verdict; read the
-review text rather than opening or embedding its image in the coordinator.
-
-- PASS: all stated criteria are visibly satisfied.
-- FAIL: at least one criterion has a visible violation; the image is a draft.
-- UNCERTAIN: a criterion is unresolved or review failed; obtain better evidence.
-
-Generation takes a new PNG output path. Up to four reference originals are
-supported, at most 4 MB each and 8 MB total. Existing assets are not overwritten.
-A review verdict does not authorize installation or publication. Do not regenerate
-automatically in a loop: use the evidence to choose a focused correction.
-
-## Worker boundaries and failures
-
-Return text findings, review verdicts and artifact paths only. Never copy images,
-base64, generated previews or image-heavy transcripts into the coordinator.
-Workers perform their narrow assignment directly and do not recursively delegate.
-Timeout/authentication failures require repairing the worker path; do not fall
-back to the coordinator's image tools. `--model` selects the worker coordinator
-model, not the image model. Inspection defaults to 120 seconds and generation to
-300 seconds; the CLI exposes `--timeout` for the specific job.
-
-Temporary attachments/transcripts are removed; generated files, bounded reviews
-and numeric metrics remain locally. Ephemeral sessions do not guarantee zero
-server retention or removal of the native generated-image cache. Audit generated
-artifacts and reports before sharing them publicly.
+Metrics record reported input/cache/output usage when supplied, elapsed time,
+image counts and cache status. Counts from different tokenizers are not a bill.
+Agent-session input includes harness/context; local requests use a short prompt.
+Do not infer token savings from isolation alone or exact request bytes from
+host-wide traffic counters. A narrow OCR benchmark does not prove equivalence
+on complex rigging judgments.

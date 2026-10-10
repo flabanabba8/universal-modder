@@ -1,18 +1,18 @@
 ---
 name: disposable-vision
-description: Inspects images and generates GPT-Image art in disposable sessions, returning only text and file paths. Use when reviewing screenshots, sprites, diagrams or visual defects, or creating art with optional image references, while keeping image payloads out of the main conversation.
+description: Inspects images with the requested vision provider and generates GPT-Image art in isolated sessions; returns text and file paths only. Use when reviewing screenshots, sprites, diagrams or visual defects, or creating art with optional image references, while keeping image payloads out of the main conversation.
 ---
 
-# Disposable image inspection and generation
+# Isolated vision inspection and image generation
 
-Project default: use this workflow for all image inspection and generation in main/coordinator sessions without requiring an explicit invocation. Disposable workers execute their assigned task directly and must not recursively invoke this skill.
+This project explicitly requests OpenAI for image generation and vision review. Inspection defaults to Codex, and generation uses native GPT-Image. Keep image payloads out of the coordinator context. Local vision is available for other tasks only when no requested model/provider excludes it.
 
 <what-to-do>
 
-1. Run `python3 SKILL_DIR/scripts/check_environment.py` once in a new environment. It checks prerequisites and CLI support without a model request; readiness is not proof of successful image generation. Locate this skill's directory from the loaded skill path. Use its bundled `scripts/` from any project; do not copy image data into the parent context. All three host agents (Codex, Claude Code, Hermes) run the same disposable **Codex CLI** workers using the existing Codex login. This is not a native Claude/Hermes image-generation API.
-2. Select inspection or generation below. Give the worker a specific task, relevant files, and acceptance criteria. Never send the parent transcript or resume a previous image worker. Workers disable host skill discovery to prevent recursive delegation back into this skill.
-3. Read only the returned text/JSON and referenced text reviews. Do not open images with the main agent's image-viewing tool, return base64, or render the generated file into the parent conversation. A path is sufficient for subsequent file processing or another disposable inspection.
-4. For generation, PASS means the independent reviewer found the criteria visibly satisfied. FAIL and UNCERTAIN are unaccepted drafts; read the review before choosing a targeted correction. Do not automatically regenerate in a loop. A verdict does not authorize installation, publication, or overwriting an existing asset.
+1. For this project use OpenAI/Codex inspection with no parent transcript. Batch related images and consider startup cost before each call. Use local commands for alpha, geometry, hashes and pixel comparisons. For other tasks, explicit `--backend local` supports fresh stateless requests to an already-running loopback server; honor any requested model/provider. No automatic downloads, server restarts or provider fallback.
+2. Run the bundled scripts through the shell. Supply a focused question, acceptance criteria and at most four images. Whole-frame previews must be <=50,000 bytes each; never crop for vision. Keep originals local. Inspect dimensions, alpha, exact hashes and pixel preservation deterministically before asking the model about visible appearance.
+3. Read only returned text/JSON and text reports. Do not emit image/base64 payloads or use the coordinator image viewer. Uncertainty requires relevant evidence, not automatic repeated reviews.
+4. For generation, run `scripts/check_environment.py` once to check Codex prerequisites, then the generation command below. Every generator is fresh; never resume it. Its independent review explicitly uses OpenAI vision for this project. PASS requires supported criteria; FAIL/UNCERTAIN stays a draft until resolved. No automatic regeneration or publication.
 
 ## Inspection
 
@@ -25,10 +25,12 @@ python3 SKILL_DIR/scripts/vision_inspect.py \
   /absolute/path/to/sprite.png
 ```
 
-- One to four images per job, whole-image JPEG previews of at most 50 KB each. For pixel-level detail or alpha-channel assessment, prepare a crop or suitable checkerboard preview on disk and send it to the worker. Preview images flatten transparency; do not infer exact alpha values from them.
+- One to four compressed whole-image JPEG previews, at most50KB each. Preview matte is not proof of opaque source pixels. Source alpha/dimensions require local measurements, not visual guessing.
 - Returns a bounded text report of findings, uncertainty, and recommended action.
 - Reports are cached by ordered image contents/names, question, criteria, model, and worker/preview code. Use `--refresh` for a new opinion. Changing an input invalidates the cache.
-- `--model` optionally selects the Codex coordinator; otherwise the user's Codex model is used. `--timeout` defaults to 120 seconds. Do not pass conversation history as a question.
+- Default `--backend codex` honors this project's OpenAI preference, including generated-art reviews. Environment defaults cannot silently switch it to local.
+- For other permitted tasks, `--backend local` sends only the short system instruction and current images/question, with no tools or history. `--max-tokens` defaults to512; `--timeout` to120seconds. Report-cache hits avoid inference.
+- No backend automatically falls back to another provider. Batch substantial related evidence; avoid model calls for tiny deterministic checks.
 
 ## Generation with optional references
 
@@ -41,7 +43,7 @@ python3 SKILL_DIR/scripts/image_reference_generate.py /absolute/path/to/new-art.
 
 - Omit `--reference` when no reference is needed. Up to four originals, at most 4 MB each and 8 MB combined. Their detail and transparency are preserved. The output must be a new PNG path.
 - Uses the native GPT-Image tool through Codex's existing login, not API-key image endpoints. `--model` selects the coordinator, not the underlying image model. Generation timeout defaults to 300 seconds.
-- A fresh inspection worker reviews the generated image against the criteria and supplied references. Larger reference sets are reviewed in bounded batches. Review failure produces UNCERTAIN, never automatic acceptance.
+- Fresh OpenAI sessions independently review this project's output/references; measured source transparency is supplied. Larger sets are bounded batches. Review failure produces UNCERTAIN, never automatic acceptance.
 - Returns JSON containing `image`, `review`, and `verdict`. The sibling `.review.json` contains the evidence. Generated images remain on disk even if review fails, so the work is not lost.
 
 ## Review rubric
@@ -54,7 +56,7 @@ python3 SKILL_DIR/scripts/image_reference_generate.py /absolute/path/to/new-art.
 
 <supporting-info>
 
-Requires Python 3.11+, Pillow, and a logged-in Codex CLI on PATH. Verified with Codex 0.162.0. If missing, report the missing prerequisite; do not substitute a paid provider or fetch credentials. Worker commands suppress raw transcripts and clean up temporary attachments. `--ephemeral` prevents normal local session persistence; it is not a promise of zero server retention or removal of Codex's generated-image cache.
+Project inspection/generation require Python3.11+, Pillow and a logged-in Codex CLI. Optional local inspection requires an existing loopback vision server. If unavailable, report the missing prerequisite; do not substitute a paid provider or fetch credentials. Worker commands suppress raw transcripts and clean up temporary attachments. `--ephemeral` prevents normal local session persistence; it is not a promise of zero server retention or removal of Codex's generated-image cache.
 
 State defaults to `$XDG_CACHE_HOME/disposable-vision` (or `~/.cache/disposable-vision`). `VISION_WORKER_STATE` overrides it. Reports and numeric metrics persist there; prompts and image payloads are not recorded in metrics. Worker images exist only in temporary directories except for generated artifacts.
 
@@ -69,3 +71,9 @@ Traffic counters include other applications. Attachment bytes are not exact netw
 This skill guides tool use; installing it does not disable native image tools globally. The kit routes image work through disposable workers in its shared project instructions. Keep each worker's stdout text-only when invoking from Claude Code or Hermes, just as from Codex.
 
 </supporting-info>
+
+## Cost evidence
+
+Local metrics retain actual prompt/completion/cached token usage when reported, attachment bytes, elapsed time, backend and model. Codex generation/escalation captures JSON usage privately; raw event streams are discarded. Earlier metrics did not retain tokens, so historical total savings cannot be established. JPEG byte size measures upload size, not image-token usage.
+
+Use ordinary local commands for small lookups and exact image checks. The reason to isolate a large review is bounded coordinator context; isolation alone does not prove lower total tokens.
