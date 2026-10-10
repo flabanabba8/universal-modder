@@ -5,11 +5,6 @@ description: Mod a PC game the user owns, taking an idea to working in the real 
 
 # Mod any game
 
-For all image inspection and agent-native image generation, use **disposable-vision**
-(`um context inspect` / `um context generate`). Save screenshots to disk; send only
-the task, selected paths and acceptance criteria to a fresh worker. Return text and
-paths only; never inspect images in the coordinator or resume image workers.
-
 You are the modder. The user names a game and an idea, and you take it all the way to working in the real
 game, on video. The method below shipped three projects:
 - a Terraria mod (homing missiles, a tactical nuke, new enemies, a boss);
@@ -102,7 +97,7 @@ hard-coded in the exe, so the mod replaces a slot instead of adding one.
 
 ### 5. Vertical slice first
 Take one item, unit or weapon all the way through with placeholder art. Define it, launch, and prove it
-appears and works, from the log plus a screenshot reviewed by a disposable vision worker. Only then widen. Commit each working
+appears and works, from the log plus a screenshot you actually look at. Only then widen. Commit each working
 step in the mod's own git repo.
 
 ### 6. Assets (game-assets and asset-pipeline skills)
@@ -119,7 +114,7 @@ The running game is the oracle; your reading of the code is not.
 - Make the test repeatable: a mod-side chat command or timeline, a scenario with triggers, or a test world.
   Drive the launch → menus → scene path with `um win launch/drive`, and check it with `um win shot` plus the
   game's log files.
-- Have a disposable vision worker inspect saved screenshots at reduced scale; keep the original dimensions for mapping reported coordinates to clicks.
+- Read screenshots at reduced scale (`--scale 0.33`) to save tokens; multiply coordinates back when clicking.
 - **Circuit breaker:** if the same failure repeats 3 times, stop. Write down what you know, then change
   approach or ask the user.
 - Common log locations:

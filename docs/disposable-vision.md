@@ -20,8 +20,7 @@ The private endpoint/model configuration lives outside the repo in
 ~/.config/disposable-vision/local.json. A 9router key, when needed, is read from
 its separate private file and sent only to the configured loopback endpoint.
 Unavailable service, truncation or invalid verdict fails closed; no remote
-fallback. Report-cache hits skip inference. The bundled project default is Codex to honor
-its requested OpenAI provider; choose `--backend local` for permitted local tasks.
+fallback. Report-cache hits skip inference. The bundled default is Codex; honor the requested provider and choose `--backend local` for permitted local tasks.
 Codex has agent startup overhead and is never an automatic local failure fallback.
 
 ## Generate

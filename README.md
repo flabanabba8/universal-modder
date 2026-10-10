@@ -72,7 +72,8 @@ um context capture --output outputs/check.log --compress -- pytest -q tests
 Configure the loopback endpoint/model in private
 `~/.config/disposable-vision/local.json`. Optional 9router authentication points
 to a separate private key file; credentials never belong in the repository.
-The bundled inspection default honors the project’s requested OpenAI provider.
+The bundled inspection default uses Codex; explicitly select local inspection
+when the task permits it, and honor any requested provider.
 Local inspection fails closed if the endpoint is unavailable. A cloud image-review
 escalation must be explicitly selected; there is no silent fallback.
 See [the vision guide](docs/disposable-vision.md) and the bundled skill.

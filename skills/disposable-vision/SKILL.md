@@ -5,11 +5,11 @@ description: Inspects images with the requested vision provider and generates GP
 
 # Isolated vision inspection and image generation
 
-This project explicitly requests OpenAI for image generation and vision review. Inspection defaults to Codex, and generation uses native GPT-Image. Keep image payloads out of the coordinator context. Local vision is available for other tasks only when no requested model/provider excludes it.
+Honor the user's requested provider for image generation and vision review. Inspection defaults to Codex, and generation uses native GPT-Image. Keep image payloads out of the coordinator context. Local vision is available for other tasks only when no requested model/provider excludes it.
 
 <what-to-do>
 
-1. For this project use OpenAI/Codex inspection with no parent transcript. Batch related images and consider startup cost before each call. Use local commands for alpha, geometry, hashes and pixel comparisons. For other tasks, explicit `--backend local` supports fresh stateless requests to an already-running loopback server; honor any requested model/provider. No automatic downloads, server restarts or provider fallback.
+1. Use the requested provider for inspection with no parent transcript. Batch related images and consider startup cost before each call. Use local commands for alpha, geometry, hashes and pixel comparisons. For other tasks, explicit `--backend local` supports fresh stateless requests to an already-running loopback server; honor any requested model/provider. No automatic downloads, server restarts or provider fallback.
 2. Run the bundled scripts through the shell. Supply a focused question, acceptance criteria and at most four images. Whole-frame previews must be <=50,000 bytes each; never crop for vision. Keep originals local. Inspect dimensions, alpha, exact hashes and pixel preservation deterministically before asking the model about visible appearance.
 3. Read only returned text/JSON and text reports. Do not emit image/base64 payloads or use the coordinator image viewer. Uncertainty requires relevant evidence, not automatic repeated reviews.
 4. For generation, run `scripts/check_environment.py` once to check Codex prerequisites, then the generation command below. Every generator is fresh; never resume it. Its independent review explicitly uses OpenAI vision for this project. PASS requires supported criteria; FAIL/UNCERTAIN stays a draft until resolved. No automatic regeneration or publication.
@@ -28,7 +28,7 @@ python3 SKILL_DIR/scripts/vision_inspect.py \
 - One to four compressed whole-image JPEG previews, at most50KB each. Preview matte is not proof of opaque source pixels. Source alpha/dimensions require local measurements, not visual guessing.
 - Returns a bounded text report of findings, uncertainty, and recommended action.
 - Reports are cached by ordered image contents/names, question, criteria, model, and worker/preview code. Use `--refresh` for a new opinion. Changing an input invalidates the cache.
-- Default `--backend codex` honors this project's OpenAI preference, including generated-art reviews. Environment defaults cannot silently switch it to local.
+- Default `--backend codex` uses OpenAI unless local inspection is explicitly selected, including generated-art reviews. Environment defaults cannot silently switch it to local.
 - For other permitted tasks, `--backend local` sends only the short system instruction and current images/question, with no tools or history. `--max-tokens` defaults to512; `--timeout` to120seconds. Report-cache hits avoid inference.
 - No backend automatically falls back to another provider. Batch substantial related evidence; avoid model calls for tiny deterministic checks.
 
